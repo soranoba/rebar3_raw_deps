@@ -1,6 +1,6 @@
 {application, rebar3_raw_deps,
  [{description, "Provider for supporting the raw deps"},
-  {vsn, git},
+  {vsn, "1.0.0"},
   {registered, []},
   {applications,[kernel,stdlib,bbmustache]},
   {modules, []},
