@@ -18,8 +18,7 @@ This plugin is one of the way to deal with this.
 ```
 
 ```bash
-$ rebar3 raw
-$ rebar3 compile
+$ rebar3 do raw,compile
 ```
 
 `rebar3 raw` is a need to perform before each of the commands of rebar3.
