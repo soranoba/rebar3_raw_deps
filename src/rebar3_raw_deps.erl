@@ -21,18 +21,25 @@
 
 %% @private
 init(State) ->
-    Provider = providers:create([{name, raw},
-                                 {module, ?MODULE},
-                                 {bare, true},
-                                 {deps, [lock]},
-                                 {short_desc, "Automatically generate the .app if it is not a OTP application."},
-                                 {opts, opts()}
-                                ]),
-    {ok, rebar_state:add_provider(State, Provider)}.
+    case get(?MODULE) =:= undefined of
+        true ->
+            InstallDepsProvider = providers:get_provider(install_deps, rebar_state:providers(State)),
+            InstallDepsModule   = providers:module(InstallDepsProvider),
+            put(?MODULE, InstallDepsProvider),
+
+            Provider = list_to_tuple(lists:map(fun(X) when X =:= InstallDepsModule -> ?MODULE;
+                                                  (X)                               -> X
+                                               end, tuple_to_list(InstallDepsProvider))),
+            {ok, force_override_provider(State, Provider)};
+        false ->
+            {ok, State}
+    end.
 
 %% @private
 do(State) ->
-    case do_impl(State) of
+    InstallDepsProvider = get(?MODULE),
+    InstallDepsModule   = providers:module(InstallDepsProvider),
+    case InstallDepsModule:do(State) of
         {ok, State1} ->
             {ok, State1};
         {error, {_, {dep_app_not_found, AppDir, AppName}}} ->
@@ -49,42 +56,24 @@ do(State) ->
                             "  {modules,[]}\n",
                             " ]}.">>,
             ok = file:write_file(AppFile, bbmustache:render(AppTemplate, [{"app_name", AppName}])),
-            ?INFO("auto generate ~s", [AppFile]),
+            ?DEBUG("auto generate ~s", [AppFile]),
             do(State);
         {error, Other} ->
-            ?DEBUG("other error : ~p", [Other]),
             {error, Other}
     end.
 
 %% @private
 format_error(Reason) ->
-    rebar_prv_install_deps:format_error(Reason).
+    io_lib:format("~p", [Reason]).
 
 %%----------------------------------------------------------------------------------------------------------------------
-%% Internal Functions Functions
+%% Internal Functions
 %%----------------------------------------------------------------------------------------------------------------------
 
-do_impl(State) ->
-    {RawOpts, _} = rebar_state:command_parsed_args(State),
-    Command = case proplists:get_value(upgrade, RawOpts, false) of
-                  true  -> upgrade;
-                  false -> install_deps
-              end,
-    Args = proplists:get_value(task, RawOpts, ""),
-    Providers = rebar_state:providers(State),
-    Namespace = rebar_state:namespace(State),
-    CommandProvider = providers:get_provider(Command, Providers, Namespace),
-    Opts = providers:opts(CommandProvider),
-    Mod  = providers:module(CommandProvider),
-    case getopt:parse(Opts, Args) of
-        {ok, ParsedArgs} ->
-            ?DEBUG("raw internal command = ~s, parsed args = ~p", [Command, ParsedArgs]),
-            Mod:do(rebar_state:command_parsed_args(State, ParsedArgs));
-        {error, Reason} ->
-            {error, lists:flatten(getopt:format_error(Reason))}
-    end.
-
-opts() ->
-    [
-     {upgrade, $u, undefined, undefined, "Upgrade project dependencies when raw dependencies exists"}
-    ].
+%% @private
+-spec force_override_provider(rebar_state:t(), providers:t()) -> rebar_state:t().
+force_override_provider(State0, Provider) ->
+    Old    = rebar_state:allow_provider_overrides(State0),
+    State1 = rebar_state:allow_provider_overrides(State0, true),
+    State2 = rebar_state:add_provider(State1, Provider),
+    rebar_state:allow_provider_overrides(State2, Old).
