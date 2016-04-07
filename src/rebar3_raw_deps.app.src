@@ -4,7 +4,7 @@
   {registered, []},
   {applications,[kernel,stdlib,bbmustache]},
   {modules, []},
-  {maintainers, ["Hinagiku Soraoba"]},
+  {maintainers, ["Hinagiku Soranoba"]},
   {licenses, ["MIT"]},
   {links, [{"GitHub","https://github.com/soranoba/rebar3_raw_deps"}]},
   {env,[]}
