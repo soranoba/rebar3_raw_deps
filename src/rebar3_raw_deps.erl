@@ -25,13 +25,14 @@ init(State) ->
                                  {module, ?MODULE},
                                  {bare, true},
                                  {deps, [app_discovery]},
-                                 {short_desc, "Automatically generate the .app if it is not a OTP application."}
+                                 {short_desc, "Automatically generate the .app if it is not a OTP application."},
+                                 {opts, opts()}
                                 ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
 %% @private
 do(State) ->
-    case rebar_prv_install_deps:do(State) of
+    case do_impl(State) of
         {ok, State1} ->
             {ok, State1};
         {error, {_, {dep_app_not_found, AppDir, AppName}}} ->
@@ -58,3 +59,32 @@ do(State) ->
 %% @private
 format_error(Reason) ->
     rebar_prv_install_deps:format_error(Reason).
+
+%%----------------------------------------------------------------------------------------------------------------------
+%% Internal Functions Functions
+%%----------------------------------------------------------------------------------------------------------------------
+
+do_impl(State) ->
+    {RawOpts, _} = rebar_state:command_parsed_args(State),
+    Command = case proplists:get_value(upgrade, RawOpts, false) of
+                  true  -> upgrade;
+                  false -> install_deps
+              end,
+    Args = proplists:get_value(task, RawOpts, ""),
+    Providers = rebar_state:providers(State),
+    Namespace = rebar_state:namespace(State),
+    CommandProvider = providers:get_provider(Command, Providers, Namespace),
+    Opts = providers:opts(CommandProvider),
+    Mod  = providers:module(CommandProvider),
+    case getopt:parse(Opts, Args) of
+        {ok, ParsedArgs} ->
+            ?DEBUG("raw internal command = ~s, parsed args = ~p", [Command, ParsedArgs]),
+            Mod:do(rebar_state:command_parsed_args(State, ParsedArgs));
+        {error, Reason} ->
+            {error, lists:flatten(getopt:format_error(Reason))}
+    end.
+
+opts() ->
+    [
+     {upgrade, $u, undefined, undefined, "Upgrade project dependencies when raw dependencies exists"}
+    ].
