@@ -24,7 +24,7 @@ init(State) ->
     Provider = providers:create([{name, raw},
                                  {module, ?MODULE},
                                  {bare, true},
-                                 {deps, [app_discovery]},
+                                 {deps, [lock]},
                                  {short_desc, "Automatically generate the .app if it is not a OTP application."},
                                  {opts, opts()}
                                 ]),
