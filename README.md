@@ -24,13 +24,13 @@ This plugin is one of the way to deal with this.
        ]}.
 ```
 
-|before               |after                  |
-|:--------------------|:----------------------|
-|`rebar3 compile`     |`rebar3 do raw,compile`|
-|`rebar3 eunit`       |`rebar3 do raw,eunit`  |
-|`rebar3 ct`          |`rebar3 do raw,ct`     |
-|`rebar3 upgrade hoge`|`rebar3 raw -u hoge`   |
-|`rebar3 upgrade`     |`rebar3 raw -u`        |
+|before               |after                        |
+|:--------------------|:----------------------------|
+|`rebar3 compile`     |`rebar3 do raw,compile`      |
+|`rebar3 eunit`       |`rebar3 as test do raw,eunit`|
+|`rebar3 ct`          |`rebar3 as test do raw,ct`   |
+|`rebar3 upgrade hoge`|`rebar3 raw -u hoge`         |
+|`rebar3 upgrade`     |`rebar3 raw -u`              |
 
 `rebar3 raw` is a need to perform before each of the commands of rebar3.
 
