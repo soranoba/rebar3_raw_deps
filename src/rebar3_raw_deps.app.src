@@ -1,11 +1,11 @@
-{application, rebar3_raw_deps,
- [{description, "Provider for supporting the raw deps"},
-  {vsn, "1.0.0"},
-  {registered, []},
-  {applications,[kernel,stdlib,bbmustache]},
-  {modules, []},
-  {maintainers, ["Hinagiku Soranoba"]},
-  {licenses, ["MIT"]},
-  {links, [{"GitHub","https://github.com/soranoba/rebar3_raw_deps"}]},
-  {env,[]}
- ]}.
+{application,rebar3_raw_deps,
+             [{description,"Provider for supporting the raw deps"},
+              {vsn,"2.0.0"},
+              {registered,[]},
+              {applications,[kernel,stdlib,bbmustache]},
+              {modules,[]},
+              {maintainers,["Hinagiku Soranoba"]},
+              {licenses,["MIT"]},
+              {links,[{"GitHub",
+                       "https://github.com/soranoba/rebar3_raw_deps"}]},
+              {env,[]}]}.
