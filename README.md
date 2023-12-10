@@ -2,6 +2,9 @@ rebar3_raw_deps
 =======
 [![hex.pm version](https://img.shields.io/hexpm/v/rebar3_raw_deps.svg)](https://hex.pm/packages/rebar3_raw_deps)
 
+
+# This library is not maintained. Please use [rebar_raw_resource](https://hex.pm/packages/rebar_raw_resource)
+
 Provider for supporting the raw deps.
 It is a plugin of [rebar3](https://github.com/erlang/rebar3).
 
